@@ -47,9 +47,22 @@ public class DownloadAccount
                 {
                     Console.WriteLine($"获取视频信息：{playlistVideo.Title}...");
                     var video = await youtube.Videos.GetAsync(playlistVideo.Id);
-                    if (File.Exists(Options.GetVideoSavePath(video, accountData))) continue;
-                    if ((video.UploadDate.Date - accountData.earliestDate).TotalHours >= 0)
+                    if (video.Duration == null)
                     {
+                        Console.WriteLine($"Null duration {video.Url}");
+                        break;
+                    }
+
+                    if ((video.UploadDate.DateTime - accountData.earliestDate).TotalHours >= 0)
+                    {
+                        var duration = video.Duration.Value.TotalSeconds;
+                        Options.SaveVideoConfig(video, accountData);
+                        if (duration >= Options.Default.ConfigData.download_max_duration) break;
+                        if (File.Exists(Options.GetVideoSavePath(video, accountData)))
+                        {
+                            Console.WriteLine($"视频已经下载 {Options.GetVideoSavePath(video, accountData)}");
+                            break;
+                        }
                         Console.WriteLine($"开始下载{video.Title}");
                         var option = await videoDownloader.GetBestDownloadOptionAsync(playlistVideo.Id,
                             new VideoDownloadPreference(Container.Mp4, VideoQualityPreference.UpTo1080p));
@@ -57,7 +70,6 @@ public class DownloadAccount
                         await videoDownloader.DownloadVideoAsync(Options.GetVideoSavePath(video, accountData), video,
                             option, true,
                             progress);
-                        Options.SaveVideoConfig(video, accountData);
                         Console.WriteLine($"下载完成{video.Title}");
                         break;
 
@@ -73,6 +85,7 @@ public class DownloadAccount
                     if (tryCount >= Options.Default.ConfigData.max_retry)
                     {
                         Console.WriteLine($"下载失败{playlistVideo.Title}");
+                        break;
                     }
                 }
             }

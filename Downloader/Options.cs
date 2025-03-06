@@ -14,26 +14,22 @@ public class Options
     {
         string content = File.ReadAllText(configFilePath);
         // content = """
-        //                  {
-        //                  "max_retry": 3,
-        //                  "cookies_file": "C:/Users/admin/Desktop/Video/www.youtube.com_cookies.txt",
-        //                  "root" : "C:/Users/admin/Desktop/Video",
-        //                  "accounts": [
-        //                    {
-        //                      "mark": "lolflix11",
-        //                      "url": "https://www.youtube.com/@RonnyChieng",
-        //                      "earliest": "2024/12/22",
-        //                      "latest": "",
-        //                      "enable": false
-        //                    }
-        //                  ],
-        //                  "videos":[
-        //                  {
-        //                     "url":"https://www.youtube.com/watch?v=cQBqHSV6eOw&ab_channel=TheDailyShow"
-        //                  }
-        //                  ]
-        //                  }
-        //                  """;
+        //           {
+        //               "max_retry": 5,
+        //               "root": "C:/Users/18530/Desktop/Video/TalkShow/AutoDownloaded",
+        //               "cookies_file": "C:/Users/18530/Desktop/Video/www.youtube.com_cookies.txt",
+        //               "download_max_duration": 10,
+        //               "accounts": [
+        //                   {
+        //                       "mark": "lolflix",
+        //                       "url": "https://www.youtube.com/@lolflix",
+        //                       "earliest": "2025/2/15",
+        //                       "enable": true
+        //                   }
+        //               ],
+        //               "videos": []
+        //           }
+        //           """;
 
         Default = new Options();
         Default.ConfigData = JsonConvert.DeserializeObject<InputDownloadConfigData>(content)!;
@@ -71,8 +67,11 @@ public class Options
             name = video.Title,
             url = video.Url,
             author = video.Author.ChannelTitle,
-            date = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss")
+            date = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss"),
+            view_count = video.Engagement.ViewCount,
+            like_count = video.Engagement.LikeCount,
         };
+        Directory.CreateDirectory(Path.GetDirectoryName(configFile));
         File.WriteAllText(configFile, JsonConvert.SerializeObject(config, Formatting.Indented));
     }
     
@@ -133,6 +132,7 @@ public class InputDownloadConfigData
     public string cookies_file { get; set; }
     public int max_retry { get; set; }
     public string root { get; set; } = string.Empty;
+    public float download_max_duration { get; set; }
     public List<InputAccountData> accounts { get; set; } = new List<InputAccountData>();
     public List<InputVideoData> videos { get; set; } = new List<InputVideoData>();
 }
@@ -144,6 +144,9 @@ public class SaveVideoConfig
     public string url { get; set; } = String.Empty;
     public string author { get; set; } = String.Empty;
     public string date { get; set; } = String.Empty;
+    public long view_count { get; set; } = 0;
+    public long like_count { get; set; } = 0;
+    public long duration { get; set; } = 0;
 }
 
 public class InputAccountData
