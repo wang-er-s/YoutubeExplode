@@ -17,7 +17,7 @@ public class Options
         //           {
         //               "max_retry": 5,
         //               "root": "C:/Users/18530/Desktop/Video/TalkShow/AutoDownloaded",
-        //               "cookies_file": "C:/Users/18530/Desktop/Video/www.youtube.com_cookies.txt",
+        //               "cookies_file": "C:/Users/18530/Desktop/Video/ytb_cookies.txt",
         //               "download_max_duration": 10,
         //               "accounts": [
         //                   {
@@ -92,37 +92,18 @@ public class Options
             return null;
         }
 
+        var cookiesDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(filePath));
         List<Cookie> result = new();
-        foreach (var line in File.ReadLines(filePath))
+        foreach (var kv in cookiesDic)
         {
-            // 跳过注释行和空行
-            if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line))
-                continue;
-
-            // 分割行，获取 cookie 的属性
-            var parts = line.Split('\t');
-            if (parts.Length != 7)
-                continue; // 确保行格式正确
-
-            string domain = parts[0];
-            bool isSecure = parts[1].Equals("TRUE", StringComparison.OrdinalIgnoreCase);
-            string path = parts[2];
-            long expires = long.Parse(parts[4]);
-            string name = parts[5];
-            string value = parts[6];
-
-            // 创建 Cookie 并添加到 CookieContainer
-            Cookie cookie = new Cookie(name, value)
+            Cookie cookie = new Cookie(kv.Key, kv.Value)
             {
-                Domain = domain,
-                Path = path,
-                Secure = isSecure,
-                Expires = DateTime.FromFileTime(expires)
+                Domain =  ".youtube.com",
+                Path = "/",
+                Secure = true,
             };
-
             result.Add(cookie);
         }
-
         return result;
     }
 }
