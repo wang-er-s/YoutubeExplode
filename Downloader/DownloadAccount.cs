@@ -1,6 +1,7 @@
 ﻿using YoutubeDownloader.Core.Downloading;
 using YoutubeExplode;
 using YoutubeExplode.Common;
+using YoutubeExplode.Playlists;
 using YoutubeExplode.Videos.Streams;
 
 namespace Downloader;
@@ -33,10 +34,19 @@ public class DownloadAccount
     
     private async Task DoDownload()
     {
-        Console.WriteLine($"开始解析频道{accountData.url}");
-        var channel = await youtube.Channels.GetByHandleAsync(accountData.url);
-        Console.WriteLine($"开始获取所有视频{accountData.url}");
-        var videoList = await youtube.Channels.GetUploadsAsync(channel.Id);
+        IReadOnlyList<PlaylistVideo> videoList = null;
+        try
+        {
+            Console.WriteLine($"开始解析频道{accountData.url}");
+            var channel = await youtube.Channels.GetByHandleAsync(accountData.url);
+            Console.WriteLine($"开始获取所有视频{accountData.url}");
+            videoList = await youtube.Channels.GetUploadsAsync(channel.Id);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"解析频道失败 {e.Message}");
+            return;
+        }
         foreach (var playlistVideo in videoList)
         {
             int tryCount = 0;
@@ -72,7 +82,6 @@ public class DownloadAccount
                             progress);
                         Console.WriteLine($"下载完成{video.Title}");
                         break;
-
                     }
 
                     needBreak = true;

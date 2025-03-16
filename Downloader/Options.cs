@@ -13,24 +13,6 @@ public class Options
     public static void Parse(string configFilePath)
     {
         string content = File.ReadAllText(configFilePath);
-        // content = """
-        //           {
-        //               "max_retry": 5,
-        //               "root": "C:/Users/18530/Desktop/Video/TalkShow/AutoDownloaded",
-        //               "cookies_file": "C:/Users/18530/Desktop/Video/ytb_cookies.txt",
-        //               "download_max_duration": 10,
-        //               "accounts": [
-        //                   {
-        //                       "mark": "lolflix",
-        //                       "url": "https://www.youtube.com/@lolflix",
-        //                       "earliest": "2025/2/15",
-        //                       "enable": true
-        //                   }
-        //               ],
-        //               "videos": []
-        //           }
-        //           """;
-
         Default = new Options();
         Default.ConfigData = JsonConvert.DeserializeObject<InputDownloadConfigData>(content)!;
         if (!string.IsNullOrEmpty(Options.Default.ConfigData.cookies_file))
