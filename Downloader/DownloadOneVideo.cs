@@ -9,6 +9,7 @@ public class DownloadOneVideo
     private YoutubeClient youtube;
     private VideoDownloader videoDownloader;
     private InputVideoData inputVideoData;
+    public bool Error { get; private set; }
 
     public DownloadOneVideo(InputVideoData videoData)
     {
@@ -43,6 +44,7 @@ public class DownloadOneVideo
                 Console.WriteLine($"报错:{e}\n正在尝试{tryCount}/{Options.Default.ConfigData.max_retry}");
                 if (tryCount >= Options.Default.ConfigData.max_retry)
                 {
+                    Error = true;
                     Console.WriteLine($"下载失败{inputVideoData.url}");
                 }
             }

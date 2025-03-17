@@ -11,6 +11,7 @@ public class DownloadAccount
     private InputAccountData accountData;
     private YoutubeClient youtube;
     private VideoDownloader videoDownloader;
+    public List<string> ErrorVideo {get; private set;} =  new List<string>();
     
     public DownloadAccount(InputAccountData accountData)
     {
@@ -94,6 +95,7 @@ public class DownloadAccount
                     if (tryCount >= Options.Default.ConfigData.max_retry)
                     {
                         Console.WriteLine($"下载失败{playlistVideo.Title}");
+                        ErrorVideo.Add(playlistVideo.Url);
                         break;
                     }
                 }
