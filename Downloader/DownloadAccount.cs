@@ -66,8 +66,8 @@ public class DownloadAccount
                     if ((video.UploadDate.DateTime - accountData.earliestDate).TotalHours >= 0)
                     {
                         var duration = video.Duration.Value.TotalSeconds;
-                        Options.SaveVideoConfig(video, accountData);
                         if (duration >= Options.Default.ConfigData.download_max_duration) break;
+                        Options.SaveVideoConfig(video, accountData);
                         if (File.Exists(Options.GetVideoSavePath(video, accountData)))
                         {
                             Console.WriteLine($"视频已经下载 {Options.GetVideoSavePath(video, accountData)}");

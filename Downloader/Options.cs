@@ -52,6 +52,7 @@ public class Options
             date = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss"),
             view_count = video.Engagement.ViewCount,
             like_count = video.Engagement.LikeCount,
+            duration = video.Duration != null ? (int)video.Duration.Value.TotalSeconds : 0
         };
         Directory.CreateDirectory(Path.GetDirectoryName(configFile));
         File.WriteAllText(configFile, JsonConvert.SerializeObject(config, Formatting.Indented));
