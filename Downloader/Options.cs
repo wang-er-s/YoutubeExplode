@@ -97,6 +97,8 @@ public class InputDownloadConfigData
     public int max_retry { get; set; }
     public string root { get; set; } = string.Empty;
     public float download_max_duration { get; set; }
+    public bool accounts_enable { get; set; }
+    public bool videos_enable { get; set; }
     public List<InputAccountData> accounts { get; set; } = new List<InputAccountData>();
     public List<InputVideoData> videos { get; set; } = new List<InputVideoData>();
 }
