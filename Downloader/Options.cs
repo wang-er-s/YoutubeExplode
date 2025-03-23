@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Newtonsoft.Json;
+using YoutubeDownloader.Core.Downloading;
 using YoutubeExplode.Videos;
 
 namespace Downloader;
@@ -99,6 +100,23 @@ public class InputDownloadConfigData
     public float download_max_duration { get; set; }
     public bool accounts_enable { get; set; }
     public bool videos_enable { get; set; }
+    public int quality { get; set; }
+
+    public VideoQualityPreference VideoQualityPreference
+    {
+        get
+        {
+            return quality switch
+            {
+                < 360 => VideoQualityPreference.Lowest,
+                < 480 => VideoQualityPreference.UpTo360p,
+                < 720 => VideoQualityPreference.UpTo480p,
+                < 1080 => VideoQualityPreference.UpTo720p,
+                1080 => VideoQualityPreference.UpTo1080p,
+                _ => VideoQualityPreference.Highest
+            };
+        }
+    }
     public List<InputAccountData> accounts { get; set; } = new List<InputAccountData>();
     public List<InputVideoData> videos { get; set; } = new List<InputVideoData>();
 }

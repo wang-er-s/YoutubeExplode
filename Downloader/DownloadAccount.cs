@@ -76,7 +76,7 @@ public class DownloadAccount
                         }
                         Console.WriteLine($"开始下载{video.Title}");
                         var option = await videoDownloader.GetBestDownloadOptionAsync(playlistVideo.Id,
-                            new VideoDownloadPreference(Container.Mp4, VideoQualityPreference.UpTo480p));
+                            new VideoDownloadPreference(Container.Mp4, Options.Default.ConfigData.VideoQualityPreference));
                         var progress = Options.GetProgressLog();
                         await videoDownloader.DownloadVideoAsync(Options.GetVideoSavePath(video, accountData), video,
                             option, true,
