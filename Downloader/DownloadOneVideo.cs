@@ -46,6 +46,7 @@ public class DownloadOneVideo
                 {
                     Error = true;
                     Console.WriteLine($"下载失败{inputVideoData.url}");
+                    break;
                 }
             }
         }
