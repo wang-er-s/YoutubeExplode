@@ -68,7 +68,6 @@ public class DownloadAccount
                     {
                         var duration = video.Duration.Value.TotalSeconds;
                         if (duration >= Options.Default.ConfigData.download_max_duration) break;
-                        Options.SaveVideoConfig(video, accountData);
                         if (File.Exists(Options.GetVideoSavePath(video, accountData)))
                         {
                             Console.WriteLine($"视频已经下载 {Options.GetVideoSavePath(video, accountData)}");
@@ -81,6 +80,7 @@ public class DownloadAccount
                         await videoDownloader.DownloadVideoAsync(Options.GetVideoSavePath(video, accountData), video,
                             option, true,
                             progress);
+                        Options.SaveVideoConfig(video, accountData);
                         Console.WriteLine($"下载完成{video.Title}");
                         break;
                     }
