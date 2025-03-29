@@ -162,6 +162,8 @@ public class InputAccountData
     }
     public string latest{ get; set; }
     public bool enable { get; set; } = true;
+
+    public float download_max_duration { get; set; } = -1;
 }
 
 public class InputVideoData
