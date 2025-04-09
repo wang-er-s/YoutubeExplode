@@ -27,7 +27,11 @@ public class DownloadOneVideo
             {
                 var videoId = VideoId.Parse(inputVideoData.url);
                 var video = await youtube.Videos.GetAsync(videoId);
-                if(File.Exists(Options.GetVideoSavePath(video))) break;
+                if (File.Exists(Options.GetVideoSavePath(video)))
+                {
+                    Console.WriteLine($"视频已存在：{Options.GetVideoSavePath(video)}");
+                    break;
+                }
                 Console.WriteLine($"开始下载{video.Title}");
                 var option = await videoDownloader.GetBestDownloadOptionAsync(videoId,
                     new VideoDownloadPreference(Container.Mp4, Options.Default.ConfigData.VideoQualityPreference));
@@ -35,7 +39,7 @@ public class DownloadOneVideo
                 await videoDownloader.DownloadVideoAsync(Options.GetVideoSavePath(video), video, option, true,
                     progress);
                 Options.SaveVideoConfig(video);
-                Console.WriteLine($"下载完成{video.Title}");
+                Console.WriteLine($"下载完成{Options.GetVideoSavePath(video)}");
                 break;
             }
             catch (Exception e)
