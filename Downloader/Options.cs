@@ -53,7 +53,8 @@ public class Options
             date = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss"),
             view_count = video.Engagement.ViewCount,
             like_count = video.Engagement.LikeCount,
-            duration = video.Duration != null ? (int)video.Duration.Value.TotalSeconds : 0
+            duration = video.Duration != null ? (int)video.Duration.Value.TotalSeconds : 0,
+            isStar = accountData?.isStar ?? false
         };
         Directory.CreateDirectory(Path.GetDirectoryName(configFile));
         File.WriteAllText(configFile, JsonConvert.SerializeObject(config, Formatting.Indented));
@@ -131,6 +132,7 @@ public class SaveVideoConfig
     public long view_count { get; set; } = 0;
     public long like_count { get; set; } = 0;
     public long duration { get; set; } = 0;
+    public bool isStar { get; set; } = false;
 }
 
 public class InputAccountData
@@ -139,6 +141,7 @@ public class InputAccountData
     public string userName { get; set; } = string.Empty;
     public string url { get; set; } = string.Empty;
     public string earliest{ get; set; }
+    public string videoFilter{ get; set; } = string.Empty;
     public DateTime earliestDate
     {
         get
@@ -162,8 +165,9 @@ public class InputAccountData
     }
     public string latest{ get; set; }
     public bool enable { get; set; } = true;
-
+    public bool isStar { get; set; } = false;
     public float download_max_duration { get; set; } = -1;
+    public float download_min_duration { get; set; } = -1;
 }
 
 public class InputVideoData

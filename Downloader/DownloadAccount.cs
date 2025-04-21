@@ -68,6 +68,8 @@ public class DownloadAccount
                     {
                         var duration = video.Duration.Value.TotalSeconds;
                         if (accountData.download_max_duration > 0 ? duration >= accountData.download_max_duration : duration >= Options.Default.ConfigData.download_max_duration) break;
+                        if (accountData.download_min_duration > 0 && duration <= accountData.download_min_duration) break;
+                        if (!string.IsNullOrEmpty(accountData.videoFilter) && !video.Title.Contains(accountData.videoFilter)) break;
                         if (File.Exists(Options.GetVideoSavePath(video, accountData)))
                         {
                             Console.WriteLine($"视频已经下载 {Options.GetVideoSavePath(video, accountData)}");
@@ -81,7 +83,7 @@ public class DownloadAccount
                             option, true,
                             progress);
                         Options.SaveVideoConfig(video, accountData);
-                        Console.WriteLine($"下载完成{Options.GetVideoSavePath(video, accountData)}");
+                        Console.WriteLine($"下载完成{video.Title}");
                         break;
                     }
 
