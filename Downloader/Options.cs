@@ -14,6 +14,24 @@ public class Options
     public static void Parse(string configFilePath)
     {
         string content = File.ReadAllText(configFilePath);
+        // content = """
+        //     {
+        //         "max_retry": 5,
+        //         "root": "C:/Users/18530/Desktop/Video/TalkShow",
+        //         "cookies_file": "C:/Users/18530/Desktop/Video/Downloader/ytb_cookies.txt",
+        //         "download_max_duration": 10,
+        //         "accounts_enable": "true",
+        //         "accounts": [
+        //         ],
+        //         "videos_enable": "true",
+        //         "videos": [
+        //         {
+        //             "url": "https://www.youtube.com/watch?v=IY5NfYlYtnU&ab_channel=TheDailyShow",
+        //             "enable": true
+        //         }
+        //         ]
+        //     }
+        //     """;
         Default = new Options();
         Default.ConfigData = JsonConvert.DeserializeObject<InputDownloadConfigData>(content)!;
         if (!string.IsNullOrEmpty(Options.Default.ConfigData.cookies_file))

@@ -18,38 +18,36 @@ public record VideoDownloadPreference(
 
         var orderedOptions = options.OrderBy(o => o.VideoQuality).ToArray();
 
-        var preferredOption = PreferredVideoQuality switch
+        VideoDownloadOption? preferredOption;
+        switch (PreferredVideoQuality)
         {
-            VideoQualityPreference.Highest => orderedOptions.LastOrDefault(o =>
-                o.Container == PreferredContainer
-            ),
-
-            VideoQualityPreference.UpTo1080p => orderedOptions
-                .Where(o => o.VideoQuality?.MaxHeight <= 1080)
-                .LastOrDefault(o => o.Container == PreferredContainer),
-
-            VideoQualityPreference.UpTo720p => orderedOptions
-                .Where(o => o.VideoQuality?.MaxHeight <= 720)
-                .LastOrDefault(o => o.Container == PreferredContainer),
-
-            VideoQualityPreference.UpTo480p => orderedOptions
-                .Where(o => o.VideoQuality?.MaxHeight <= 480)
-                .LastOrDefault(o => o.Container == PreferredContainer),
-
-            VideoQualityPreference.UpTo360p => orderedOptions
-                .Where(o => o.VideoQuality?.MaxHeight <= 360)
-                .LastOrDefault(o => o.Container == PreferredContainer),
-
-            VideoQualityPreference.Lowest => orderedOptions.LastOrDefault(o =>
-                o.Container == PreferredContainer
-            ),
-
-            _ => throw new InvalidOperationException(
-                $"Unknown video quality preference '{PreferredVideoQuality}'."
-            ),
-        };
+            case VideoQualityPreference.Highest:
+                preferredOption = orderedOptions.LastOrDefault(o => o.Container == PreferredContainer);
+                break;
+            case VideoQualityPreference.UpTo1080p:
+                preferredOption = orderedOptions.Where(o => o.VideoQuality?.MaxHeight <= 1080)
+                    .LastOrDefault(o => o.Container == PreferredContainer);
+                break;
+            case VideoQualityPreference.UpTo720p:
+                preferredOption = orderedOptions.Where(o => o.VideoQuality?.MaxHeight <= 720)
+                    .LastOrDefault(o => o.Container == PreferredContainer);
+                break;
+            case VideoQualityPreference.UpTo480p:
+                preferredOption = orderedOptions.Where(o => o.VideoQuality?.MaxHeight <= 480)
+                    .LastOrDefault(o => o.Container == PreferredContainer);
+                break;
+            case VideoQualityPreference.UpTo360p:
+                preferredOption = orderedOptions.Where(o => o.VideoQuality?.MaxHeight <= 360)
+                    .LastOrDefault(o => o.Container == PreferredContainer);
+                break;
+            case VideoQualityPreference.Lowest:
+                preferredOption = orderedOptions.FirstOrDefault(o => o.Container == PreferredContainer && o.VideoQuality != null);
+                break;
+            default:
+                throw new InvalidOperationException($"Unknown video quality preference '{PreferredVideoQuality}'.");
+        }
 
         return preferredOption
-            ?? orderedOptions.FirstOrDefault(o => o.Container == PreferredContainer);
+               ?? orderedOptions.FirstOrDefault(o => o.Container == PreferredContainer);
     }
 }
