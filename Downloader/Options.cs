@@ -68,7 +68,8 @@ public class Options
             name = video.Title,
             url = video.Url,
             author = video.Author.ChannelTitle,
-            date = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss"),
+            date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            videoDate = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss"),
             view_count = video.Engagement.ViewCount,
             like_count = video.Engagement.LikeCount,
             duration = video.Duration != null ? (int)video.Duration.Value.TotalSeconds : 0,
@@ -147,6 +148,7 @@ public class SaveVideoConfig
     public string url { get; set; } = String.Empty;
     public string author { get; set; } = String.Empty;
     public string date { get; set; } = String.Empty;
+    public string videoDate { get; set; } = String.Empty;
     public long view_count { get; set; } = 0;
     public long like_count { get; set; } = 0;
     public long duration { get; set; } = 0;
