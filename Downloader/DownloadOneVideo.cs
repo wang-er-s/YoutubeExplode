@@ -34,7 +34,7 @@ public class DownloadOneVideo
                 }
                 Console.WriteLine($"开始下载{video.Title}");
                 var option = await videoDownloader.GetBestDownloadOptionAsync(videoId,
-                    new VideoDownloadPreference(Container.Mp4, Options.Default.ConfigData.VideoQualityPreference));
+                    new VideoDownloadPreference(Options.Default.ConfigData.only_audio ? Container.Mp3 : Container.Mp4, Options.Default.ConfigData.VideoQualityPreference));
                 var progress = Options.GetProgressLog();
                 await videoDownloader.DownloadVideoAsync(Options.GetVideoSavePath(video), video, option, true,
                     progress);

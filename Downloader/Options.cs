@@ -48,7 +48,7 @@ public class Options
             dir = string.IsNullOrEmpty(url.mark) ? url.userName : url.mark;
         }
 
-        return Path.Combine(Options.Default.ConfigData.root, dir, video.Id.Value, video.Id.Value + ".mp4");
+        return Path.Combine(Options.Default.ConfigData.root, dir, video.Id.Value, video.Id.Value , Default.ConfigData.only_audio ? "mp3" : ".mp4");
     }
     
     private static string GetVideoConfigSavePath(Video video, InputAccountData? url = null)
@@ -120,6 +120,7 @@ public class InputDownloadConfigData
     public float download_max_duration { get; set; }
     public bool accounts_enable { get; set; }
     public bool videos_enable { get; set; }
+    public bool only_audio { get; set; }
     public int quality { get; set; }
 
     public VideoQualityPreference VideoQualityPreference
