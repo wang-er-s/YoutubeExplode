@@ -42,13 +42,23 @@ public class Options
     
     public static string GetVideoSavePath(Video video, InputAccountData? url = null)
     {
-        string dir = video.Author.ChannelTitle;
-        if (url != null)
+        if(string.IsNullOrEmpty(Options.Default.ConfigData.save_format))
         {
-            dir = string.IsNullOrEmpty(url.mark) ? url.userName : url.mark;
-        }
+            string dir = video.Author.ChannelTitle;
+            if (url != null)
+            {
+                dir = string.IsNullOrEmpty(url.mark) ? url.userName : url.mark;
+            }
 
-        return Path.Combine(Options.Default.ConfigData.root, dir, video.Id.Value, video.Id.Value , Default.ConfigData.only_audio ? "mp3" : ".mp4");
+            return Path.Combine(Options.Default.ConfigData.root, dir, video.Id.Value, video.Id.Value + (Default.ConfigData.only_audio ? ".mp3" : ".mp4"));
+        }
+        else
+        {
+            var path = Options.Default.ConfigData.save_format;
+            path = path.Replace("{author}", video.Author.ChannelTitle);
+            path = path.Replace("{video_id}", video.Id.Value);
+            return Path.GetFullPath(Path.Combine(Options.Default.ConfigData.root, path));
+        }
     }
     
     private static string GetVideoConfigSavePath(Video video, InputAccountData? url = null)
@@ -122,6 +132,7 @@ public class InputDownloadConfigData
     public bool videos_enable { get; set; }
     public bool only_audio { get; set; }
     public int quality { get; set; }
+    public string save_format { get; set; } = string.Empty;
 
     public VideoQualityPreference VideoQualityPreference
     {

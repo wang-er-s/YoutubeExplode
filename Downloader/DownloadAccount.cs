@@ -83,7 +83,7 @@ public class DownloadAccount
                             option, true,
                             progress);
                         Options.SaveVideoConfig(video, accountData);
-                        Console.WriteLine($"下载完成{video.Title}");
+                        Console.WriteLine($"下载完成{Options.GetVideoSavePath(video, accountData)}");
                         break;
                     }
 
