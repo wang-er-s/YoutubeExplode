@@ -103,7 +103,7 @@ public class DownloadAccount
                 catch (Exception e)
                 {
                     tryCount++;
-                    Console.WriteLine($"报错:{e}\n正在尝试{tryCount}/{Options.Default.ConfigData.max_retry}");
+                    Console.WriteLine($"报错:{e.Message.Split("\n")[0]}\n正在尝试{tryCount}/{Options.Default.ConfigData.max_retry}");
                     await Task.Delay(1000);
                     if (tryCount >= Options.Default.ConfigData.max_retry)
                     {

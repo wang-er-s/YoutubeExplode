@@ -37,14 +37,14 @@ public class DownloadOneVideo
                     Console.WriteLine($"视频已经下载{Options.GetVideoSavePath(video)}");
                     break;
                 }
-                if ((video.UploadDate.DateTime - Options.Default.ConfigData.earliestDate).TotalHours >= 0)
+                if ((video.UploadDate.DateTime - Options.Default.ConfigData.earliestDate).TotalHours <= 0)
                 {
-                    Console.WriteLine($"视频上传时间小于 {Options.Default.ConfigData.earliest}");
+                    Console.WriteLine($"视频{inputVideoData.url} 上传时间 {video.UploadDate.DateTime} 小于 {Options.Default.ConfigData.earliest}");
                     break;
                 }
                 if(video.Duration.Value.TotalSeconds > Options.Default.ConfigData.download_max_duration)
                 {
-                    Console.WriteLine($"视频时长超过限制 {inputVideoData.url}");
+                    Console.WriteLine($"视频{inputVideoData.url} 时长 {video.Duration.Value.TotalSeconds} 秒 超过限制 {Options.Default.ConfigData.download_max_duration} 秒");
                     break;
                 }
                 Console.WriteLine($"开始下载 {inputVideoData.url}");
@@ -60,7 +60,7 @@ public class DownloadOneVideo
             catch (Exception e)
             {
                 tryCount++;
-                Console.WriteLine($"报错:{e}\n正在尝试{tryCount}/{Options.Default.ConfigData.max_retry}");
+                Console.WriteLine($"报错:{e.Message.Split("\n")[0]}\n正在尝试{tryCount}/{Options.Default.ConfigData.max_retry}");
                 await Task.Delay(1000);
                 if (tryCount >= Options.Default.ConfigData.max_retry)
                 {
