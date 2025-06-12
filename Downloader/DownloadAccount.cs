@@ -76,10 +76,11 @@ public class DownloadAccount
                             break;
                         }
                         Console.WriteLine($"开始下载{video.Title}");
+                        var savePath = Options.GetVideoSavePath(video, accountData);
                         var option = await videoDownloader.GetBestDownloadOptionAsync(playlistVideo.Id,
-                            new VideoDownloadPreference(Options.Default.ConfigData.only_audio ? Container.Mp3 : Container.Mp4, Options.Default.ConfigData.VideoQualityPreference));
+                            new VideoDownloadPreference(Options.GetContainer(savePath), Options.Default.ConfigData.VideoQualityPreference));
                         var progress = Options.GetProgressLog();
-                        await videoDownloader.DownloadVideoAsync(Options.GetVideoSavePath(video, accountData), video,
+                        await videoDownloader.DownloadVideoAsync(savePath, video,
                             option, true,
                             progress);
                         Options.SaveVideoConfig(video, accountData);
@@ -94,6 +95,7 @@ public class DownloadAccount
                 {
                     tryCount++;
                     Console.WriteLine($"报错:{e}\n正在尝试{tryCount}/{Options.Default.ConfigData.max_retry}");
+                    await Task.Delay(1000);
                     if (tryCount >= Options.Default.ConfigData.max_retry)
                     {
                         Console.WriteLine($"下载失败{playlistVideo.Title}");

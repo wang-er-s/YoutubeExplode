@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using YoutubeDownloader.Core.Downloading;
 using YoutubeExplode.Videos;
+using YoutubeExplode.Videos.Streams;
 
 namespace Downloader;
 
@@ -14,22 +15,24 @@ public class Options
     public static void Parse(string configFilePath)
     {
         string content = File.ReadAllText(configFilePath);
-        // content = """
+        // string content = """
         //     {
         //         "max_retry": 5,
-        //         "root": "C:/Users/18530/Desktop/Video/TalkShow",
-        //         "cookies_file": "C:/Users/18530/Desktop/Video/Downloader/ytb_cookies.txt",
-        //         "download_max_duration": 10,
+        //         "root": "C:/Users/ss/Desktop/VideoDownload",
+        //         "cookies_file": "C:/Users/ss/Desktop/VideoDownload/ytb_cookies.txt",
+        //         "download_max_duration": 10000,
         //         "accounts_enable": "true",
+        //         "save_format": "aa.mp4",
         //         "accounts": [
         //         ],
         //         "videos_enable": "true",
         //         "videos": [
         //         {
-        //             "url": "https://www.youtube.com/watch?v=IY5NfYlYtnU&ab_channel=TheDailyShow",
+        //             "url": "https://www.youtube.com/watch?v=IY5NfYlYtnU",
         //             "enable": true
         //         }
-        //         ]
+        //         ],
+        //         "quality": 1080
         //     }
         //     """;
         Default = new Options();
@@ -50,7 +53,7 @@ public class Options
                 dir = string.IsNullOrEmpty(url.mark) ? url.userName : url.mark;
             }
 
-            return Path.Combine(Options.Default.ConfigData.root, dir, video.Id.Value, video.Id.Value + (Default.ConfigData.only_audio ? ".mp3" : ".mp4"));
+            return Path.Combine(Options.Default.ConfigData.root, dir, video.Id.Value, video.Id.Value + ".mp4");
         }
         else
         {
@@ -59,6 +62,15 @@ public class Options
             path = path.Replace("{video_id}", video.Id.Value);
             return Path.GetFullPath(Path.Combine(Options.Default.ConfigData.root, path));
         }
+    }
+
+    public static Container GetContainer(string savePath)
+    {
+        if(savePath.EndsWith(".mp4"))
+        {
+            return Container.Mp4;
+        }
+        return Container.Mp3;
     }
     
     private static string GetVideoConfigSavePath(Video video, InputAccountData? url = null)
@@ -80,8 +92,6 @@ public class Options
             author = video.Author.ChannelTitle,
             date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             videoDate = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss"),
-            view_count = video.Engagement.ViewCount,
-            like_count = video.Engagement.LikeCount,
             duration = video.Duration != null ? (int)video.Duration.Value.TotalSeconds : 0,
             isStar = accountData?.isStar ?? false
         };
@@ -130,7 +140,6 @@ public class InputDownloadConfigData
     public float download_max_duration { get; set; }
     public bool accounts_enable { get; set; }
     public bool videos_enable { get; set; }
-    public bool only_audio { get; set; }
     public int quality { get; set; }
     public string save_format { get; set; } = string.Empty;
 
@@ -161,8 +170,6 @@ public class SaveVideoConfig
     public string author { get; set; } = String.Empty;
     public string date { get; set; } = String.Empty;
     public string videoDate { get; set; } = String.Empty;
-    public long view_count { get; set; } = 0;
-    public long like_count { get; set; } = 0;
     public long duration { get; set; } = 0;
     public bool isStar { get; set; } = false;
 }
@@ -183,19 +190,6 @@ public class InputAccountData
         }
     }
 
-    public DateTime latestDate
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(latest))
-            {
-                return new DateTime(9999, 1, 1);
-            }
-            var strs = latest.Split('/');
-            return new DateTime(int.Parse(strs[0]), int.Parse(strs[1]), int.Parse(strs[2]));
-        }
-    }
-    public string latest{ get; set; }
     public bool enable { get; set; } = true;
     public bool isStar { get; set; } = false;
     public float download_max_duration { get; set; } = -1;
@@ -206,4 +200,13 @@ public class InputVideoData
 {
     public string url { get; set; } = string.Empty;
     public bool enable { get; set; } = true;
+    public string earliest{ get; set; } = string.Empty;
+    public DateTime earliestDate
+    {
+        get
+        {
+            var strs = earliest.Split('/');
+            return new DateTime(int.Parse(strs[0]), int.Parse(strs[1]), int.Parse(strs[2]));
+        }
+    }
 }

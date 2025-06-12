@@ -27,14 +27,30 @@ public class DownloadOneVideo
             {
                 var videoId = VideoId.Parse(inputVideoData.url);
                 var video = await youtube.Videos.GetAsync(videoId);
+                if( video.Duration == null)
+                {
+                    Console.WriteLine($"视频信息获取失败 {inputVideoData.url}");
+                    break;
+                }
                 if (File.Exists(Options.GetVideoSavePath(video)))
                 {
                     Console.WriteLine($"视频已存在：{Options.GetVideoSavePath(video)}");
                     break;
                 }
-                Console.WriteLine($"开始下载{video.Title}");
+                if (!string.IsNullOrEmpty(inputVideoData.earliest) && (video.UploadDate.DateTime - inputVideoData.earliestDate).TotalHours >= 0)
+                {
+                    Console.WriteLine($"视频上传时间小于 {inputVideoData.earliest}");
+                    break;
+                }
+                var duration = video.Duration.Value.TotalSeconds;
+                if(duration > Options.Default.ConfigData.download_max_duration)
+                {
+                    Console.WriteLine($"视频时长超过限制 {inputVideoData.url}");
+                    break;
+                }
+                Console.WriteLine($"开始下载 {inputVideoData.url}");
                 var option = await videoDownloader.GetBestDownloadOptionAsync(videoId,
-                    new VideoDownloadPreference(Options.Default.ConfigData.only_audio ? Container.Mp3 : Container.Mp4, Options.Default.ConfigData.VideoQualityPreference));
+                    new VideoDownloadPreference(Options.GetContainer(Options.GetVideoSavePath(video)), Options.Default.ConfigData.VideoQualityPreference));
                 var progress = Options.GetProgressLog();
                 await videoDownloader.DownloadVideoAsync(Options.GetVideoSavePath(video), video, option, true,
                     progress);
@@ -46,6 +62,7 @@ public class DownloadOneVideo
             {
                 tryCount++;
                 Console.WriteLine($"报错:{e}\n正在尝试{tryCount}/{Options.Default.ConfigData.max_retry}");
+                await Task.Delay(1000);
                 if (tryCount >= Options.Default.ConfigData.max_retry)
                 {
                     Error = true;
