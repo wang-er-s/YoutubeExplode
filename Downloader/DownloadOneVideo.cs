@@ -27,23 +27,22 @@ public class DownloadOneVideo
             {
                 var videoId = VideoId.Parse(inputVideoData.url);
                 var video = await youtube.Videos.GetAsync(videoId);
-                if( video.Duration == null)
+                if(!video.Duration.HasValue)
                 {
                     Console.WriteLine($"视频信息获取失败 {inputVideoData.url}");
-                    break;
+                    throw new Exception("视频信息获取失败");
                 }
                 if (File.Exists(Options.GetVideoSavePath(video)))
                 {
-                    Console.WriteLine($"视频已存在：{Options.GetVideoSavePath(video)}");
+                    Console.WriteLine($"视频已经下载{Options.GetVideoSavePath(video)}");
                     break;
                 }
-                if (!string.IsNullOrEmpty(inputVideoData.earliest) && (video.UploadDate.DateTime - inputVideoData.earliestDate).TotalHours >= 0)
+                if ((video.UploadDate.DateTime - Options.Default.ConfigData.earliestDate).TotalHours >= 0)
                 {
-                    Console.WriteLine($"视频上传时间小于 {inputVideoData.earliest}");
+                    Console.WriteLine($"视频上传时间小于 {Options.Default.ConfigData.earliest}");
                     break;
                 }
-                var duration = video.Duration.Value.TotalSeconds;
-                if(duration > Options.Default.ConfigData.download_max_duration)
+                if(video.Duration.Value.TotalSeconds > Options.Default.ConfigData.download_max_duration)
                 {
                     Console.WriteLine($"视频时长超过限制 {inputVideoData.url}");
                     break;
@@ -54,7 +53,7 @@ public class DownloadOneVideo
                 var progress = Options.GetProgressLog();
                 await videoDownloader.DownloadVideoAsync(Options.GetVideoSavePath(video), video, option, true,
                     progress);
-                Options.SaveVideoConfig(video);
+                Options.SaveVideoConfig(video, inputVideoData.isStar);
                 Console.WriteLine($"下载完成{Options.GetVideoSavePath(video)}");
                 break;
             }

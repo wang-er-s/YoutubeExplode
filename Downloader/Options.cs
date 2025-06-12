@@ -43,25 +43,12 @@ public class Options
         }
     }
     
-    public static string GetVideoSavePath(Video video, InputAccountData? url = null)
+    public static string GetVideoSavePath(Video video)
     {
-        if(string.IsNullOrEmpty(Options.Default.ConfigData.save_format))
-        {
-            string dir = video.Author.ChannelTitle;
-            if (url != null)
-            {
-                dir = string.IsNullOrEmpty(url.mark) ? url.userName : url.mark;
-            }
-
-            return Path.Combine(Options.Default.ConfigData.root, dir, video.Id.Value, video.Id.Value + ".mp4");
-        }
-        else
-        {
-            var path = Options.Default.ConfigData.save_format;
-            path = path.Replace("{author}", video.Author.ChannelTitle);
-            path = path.Replace("{video_id}", video.Id.Value);
-            return Path.GetFullPath(Path.Combine(Options.Default.ConfigData.root, path));
-        }
+        var path = Options.Default.ConfigData.save_format;
+        path = path.Replace("{author}", video.Author.ChannelTitle);
+        path = path.Replace("{video_id}", video.Id.Value);
+        return Path.GetFullPath(Path.Combine(Options.Default.ConfigData.root, path));
     }
 
     public static Container GetContainer(string savePath)
@@ -73,16 +60,20 @@ public class Options
         return Container.Mp3;
     }
     
-    private static string GetVideoConfigSavePath(Video video, InputAccountData? url = null)
+    private static string GetVideoConfigSavePath(Video video)
     {
-        var saveDir = Path.GetDirectoryName(GetVideoSavePath(video, url));
+        var saveDir = Path.GetDirectoryName(GetVideoSavePath(video));
         var configFile = Path.Combine(saveDir, "data.json");
         return configFile;
     }
     
-    public static void SaveVideoConfig(Video video, InputAccountData? accountData = null)
+    public static void SaveVideoConfig(Video video, bool isStar)
     {
-        var configFile = GetVideoConfigSavePath(video, accountData);
+        if(!Options.Default.ConfigData.is_save_data)
+        {
+            return;
+        }
+        var configFile = GetVideoConfigSavePath(video);
                         
         SaveVideoConfig config = new SaveVideoConfig()
         {
@@ -90,10 +81,10 @@ public class Options
             name = video.Title,
             url = video.Url,
             author = video.Author.ChannelTitle,
-            date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-            videoDate = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss"),
+            download_date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            upload_date = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss"),
             duration = video.Duration != null ? (int)video.Duration.Value.TotalSeconds : 0,
-            isStar = accountData?.isStar ?? false
+            isStar = isStar
         };
         Directory.CreateDirectory(Path.GetDirectoryName(configFile));
         File.WriteAllText(configFile, JsonConvert.SerializeObject(config, Formatting.Indented));
@@ -138,10 +129,20 @@ public class InputDownloadConfigData
     public int max_retry { get; set; }
     public string root { get; set; } = string.Empty;
     public float download_max_duration { get; set; }
-    public bool accounts_enable { get; set; }
-    public bool videos_enable { get; set; }
-    public int quality { get; set; }
-    public string save_format { get; set; } = string.Empty;
+    public bool accounts_enable { get; set; } = true;
+    public bool videos_enable { get; set; } = true;
+    public int quality { get; set; } = 1080;
+    public string save_format { get; set; } = "{author}/{video_id}/{video_id}.mp4";
+    public bool is_save_data { get; set; } = true;
+    public string earliest{ get; set; }
+    public DateTime earliestDate
+    {
+        get
+        {
+            var strs = earliest.Split('/');
+            return new DateTime(int.Parse(strs[0]), int.Parse(strs[1]), int.Parse(strs[2]));
+        }
+    }
 
     public VideoQualityPreference VideoQualityPreference
     {
@@ -168,28 +169,16 @@ public class SaveVideoConfig
     public string name { get; set; } = String.Empty;
     public string url { get; set; } = String.Empty;
     public string author { get; set; } = String.Empty;
-    public string date { get; set; } = String.Empty;
-    public string videoDate { get; set; } = String.Empty;
+    public string download_date { get; set; } = String.Empty;
+    public string upload_date { get; set; } = String.Empty;
     public long duration { get; set; } = 0;
     public bool isStar { get; set; } = false;
 }
 
 public class InputAccountData
 {
-    public string mark { get; set; } = string.Empty;
-    public string userName { get; set; } = string.Empty;
     public string url { get; set; } = string.Empty;
-    public string earliest{ get; set; }
     public string videoFilter{ get; set; } = string.Empty;
-    public DateTime earliestDate
-    {
-        get
-        {
-            var strs = earliest.Split('/');
-            return new DateTime(int.Parse(strs[0]), int.Parse(strs[1]), int.Parse(strs[2]));
-        }
-    }
-
     public bool enable { get; set; } = true;
     public bool isStar { get; set; } = false;
     public float download_max_duration { get; set; } = -1;
@@ -199,14 +188,6 @@ public class InputAccountData
 public class InputVideoData
 {
     public string url { get; set; } = string.Empty;
+    public bool isStar { get; set; } = false;
     public bool enable { get; set; } = true;
-    public string earliest{ get; set; } = string.Empty;
-    public DateTime earliestDate
-    {
-        get
-        {
-            var strs = earliest.Split('/');
-            return new DateTime(int.Parse(strs[0]), int.Parse(strs[1]), int.Parse(strs[2]));
-        }
-    }
 }

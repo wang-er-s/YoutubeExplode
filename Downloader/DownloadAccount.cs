@@ -29,7 +29,6 @@ public class DownloadAccount
             return;
         }
 
-        accountData.userName = accountData.url.Substring(index + 1);
         await DoDownload();
     }
     
@@ -60,31 +59,41 @@ public class DownloadAccount
                     var video = await youtube.Videos.GetAsync(playlistVideo.Id);
                     if (video.Duration == null)
                     {
-                        Console.WriteLine($"Null duration {video.Url}");
+                        Console.WriteLine($"视频信息获取失败 {playlistVideo.Url}");
                         break;
                     }
 
-                    if ((video.UploadDate.DateTime - accountData.earliestDate).TotalHours >= 0)
+                    if (File.Exists(Options.GetVideoSavePath(video)))
+                    {
+                        Console.WriteLine($"视频已经下载 {Options.GetVideoSavePath(video)}");
+                        break;
+                    }
+
+                    // 判断视频上传时间是否大于限制
+                    if ((video.UploadDate.DateTime - Options.Default.ConfigData.earliestDate).TotalHours >= 0)
                     {
                         var duration = video.Duration.Value.TotalSeconds;
-                        if (accountData.download_max_duration > 0 ? duration >= accountData.download_max_duration : duration >= Options.Default.ConfigData.download_max_duration) break;
-                        if (accountData.download_min_duration > 0 && duration <= accountData.download_min_duration) break;
-                        if (!string.IsNullOrEmpty(accountData.videoFilter) && !video.Title.Contains(accountData.videoFilter)) break;
-                        if (File.Exists(Options.GetVideoSavePath(video, accountData)))
+                        // 判断视频时长是否超过限制
+                        if (accountData.download_max_duration > 0)
                         {
-                            Console.WriteLine($"视频已经下载 {Options.GetVideoSavePath(video, accountData)}");
-                            break;
+                            if (duration >= accountData.download_max_duration) break;
                         }
+                        else
+                        {
+                            if (duration >= Options.Default.ConfigData.download_max_duration) break;
+                        }
+                        if (accountData.download_min_duration > 0 && duration <= accountData.download_min_duration) break;
+
+                        if (!string.IsNullOrEmpty(accountData.videoFilter) && !video.Title.Contains(accountData.videoFilter)) break;
+
                         Console.WriteLine($"开始下载{video.Title}");
-                        var savePath = Options.GetVideoSavePath(video, accountData);
+                        var savePath = Options.GetVideoSavePath(video);
                         var option = await videoDownloader.GetBestDownloadOptionAsync(playlistVideo.Id,
                             new VideoDownloadPreference(Options.GetContainer(savePath), Options.Default.ConfigData.VideoQualityPreference));
                         var progress = Options.GetProgressLog();
-                        await videoDownloader.DownloadVideoAsync(savePath, video,
-                            option, true,
-                            progress);
-                        Options.SaveVideoConfig(video, accountData);
-                        Console.WriteLine($"下载完成{Options.GetVideoSavePath(video, accountData)}");
+                        await videoDownloader.DownloadVideoAsync(savePath, video,option, true, progress);
+                        Options.SaveVideoConfig(video, accountData.isStar);
+                        Console.WriteLine($"下载完成{Options.GetVideoSavePath(video)}");
                         break;
                     }
 
