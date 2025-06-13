@@ -81,8 +81,8 @@ public class Options
             name = video.Title,
             url = video.Url,
             author = video.Author.ChannelTitle,
-            download_date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-            upload_date = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss"),
+            downloadDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            uploadDate = video.UploadDate.ToString("yyyy-MM-dd HH:mm:ss"),
             duration = video.Duration != null ? (int)video.Duration.Value.TotalSeconds : 0,
             isStar = isStar
         };
@@ -139,6 +139,10 @@ public class InputDownloadConfigData
     {
         get
         {
+            if(string.IsNullOrEmpty(earliest))
+            {
+                return DateTime.MinValue;
+            }
             var strs = earliest.Split('/');
             return new DateTime(int.Parse(strs[0]), int.Parse(strs[1]), int.Parse(strs[2]));
         }
@@ -169,8 +173,8 @@ public class SaveVideoConfig
     public string name { get; set; } = String.Empty;
     public string url { get; set; } = String.Empty;
     public string author { get; set; } = String.Empty;
-    public string download_date { get; set; } = String.Empty;
-    public string upload_date { get; set; } = String.Empty;
+    public string downloadDate { get; set; } = String.Empty;
+    public string uploadDate { get; set; } = String.Empty;
     public long duration { get; set; } = 0;
     public bool isStar { get; set; } = false;
 }
